@@ -1,0 +1,49 @@
+#################################
+#   GENERATING QUALYS METRICS   #
+#################################
+
+Important Notes:
+  # There are several reports used to compile the Qualys metrics. As such, these reports are organized into different directory structures which are needed for the scripts to run properly.
+
+  stats ->	data       			->	archive	->	[old raw reports]
+						                    nessus	->	[no longer used]
+						                    qualys	->	[raw qualys reports - before]
+
+			      processed_data	->	archive	->	[old metrics reports]
+							                  nessus	->	[no longer used]
+							                  qualys	->	[metrics reports - after]
+							                  topTen	->	[top ten reports]
+
+
+1) Open a new terminal window
+2) Navigate to the directory where you saved all of the scripts: $ cd {$PATH}/stats/
+3) Run the command: $ ./qualysReports.sh
+	# This script automates the following steps:
+	## Logs into Qualys via the API
+	## Fetches a list of all active reports containing the term ‘metrics’ in the report title, and compiles an array using ReportID, ReportTitle, ReportSize, ReportDate, and ReportTime
+	## Archives old reports into a zip file and purges all current directories & files
+	## Creates new directories based on all ReportTitles from the array
+	## Initiates downloading of all Qualys reports based on ReportIDs from array, and places files in the corresponding directory
+	## Logs out of Qualys
+4) Run the command: $ ./extractQualys.sh
+	# This script automates the following steps:
+	## Crawls through every directory under data/qualys/* and runs every downloaded Qualys report through the qualys.pl script to normalize the data
+5) Run the command: $ ./analyze.sh
+	# This script automates the following steps:
+	## Compiles a device count for each Business Unit
+  ## Compiles metrics broken down by month and criticality (MonthlyByCrit)
+  ## Compiles longevity metrics broken down by month (VulnLongevity)
+  # All files are output to the processed_data/qualys/ directory
+6) Run the command: $ ./topTen.sh
+  # This script automates the following steps:
+  ## Compiles a list of the Top Ten vulnerabilities for each Business Unit
+  # All files are output to the processed_data/topTen/ directory
+7) Open the folder where all the processed reports have been saved (stats -> processed_data -> qualys)
+8) Open the latest metrics XLSX file
+9) Starting from the first tab in the spreadsheet, find and open the corresponding files in the report directory, and do the following:
+    a) Copy the number from the *Devices.txt file, and paste in cell P2
+    b) Copy the data from the *MonthlyByCrit.csv file, and paste over cells A1:M5
+    c) Copy the data from the *VulnLongevity.csv file, and paste over cells A9:M13
+10) Check that all formulas and graphs are intact
+11) Done!
+12) The Top Ten report can be found by opening the folder where all the top ten reports were saved (stats -> processed_data -> topTen), and look for the file called "TopTen.csv"
